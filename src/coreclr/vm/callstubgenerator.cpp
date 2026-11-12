@@ -1890,7 +1890,8 @@ bool isNativePrimitiveStructType(MethodTable* pMT)
         return false;
     }
 
-    return strcmp(typeName, "CLong") == 0 || strcmp(typeName, "CULong") == 0 || strcmp(typeName, "NFloat") == 0;
+    return strcmp(typeName, "CLong") == 0 || strcmp(typeName, "CULong") == 0 || strcmp(typeName, "CWChar") == 0 ||
+           strcmp(typeName, "NFloat") == 0;
 }
 
 void CallStubGenerator::ComputeCallStub(MetaSig &sig, PCODE *pRoutines, MethodDesc *pMD)

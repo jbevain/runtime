@@ -135,6 +135,8 @@ namespace Microsoft.Interop
 
         public const string System_Runtime_InteropServices_CULong = "System.Runtime.InteropServices.CULong";
 
+        public const string System_Runtime_InteropServices_CWChar = "System.Runtime.InteropServices.CWChar";
+
         public const string System_Runtime_InteropServices_NFloat = "System.Runtime.InteropServices.NFloat";
 
         public const string ComVariantMarshaller = "System.Runtime.InteropServices.Marshalling.ComVariantMarshaller";

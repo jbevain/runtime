@@ -840,6 +840,18 @@ namespace System.Runtime.InteropServices
         NotHandled = 1,
         Failed = 2,
     }
+    [System.CLSCompliantAttribute(false)]
+    public readonly partial struct CWChar : System.IEquatable<System.Runtime.InteropServices.CWChar>
+    {
+        private readonly int _dummyPrimitive;
+        public CWChar(char value) { throw null; }
+        public CWChar(int value) { throw null; }
+        public int Value { get { throw null; } }
+        public override bool Equals([System.Diagnostics.CodeAnalysis.NotNullWhenAttribute(true)] object? o) { throw null; }
+        public bool Equals(System.Runtime.InteropServices.CWChar other) { throw null; }
+        public override int GetHashCode() { throw null; }
+        public override string ToString() { throw null; }
+    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Module, Inherited=false)]
     public sealed partial class DefaultCharSetAttribute : System.Attribute
     {

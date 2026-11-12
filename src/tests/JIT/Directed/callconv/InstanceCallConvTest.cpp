@@ -65,6 +65,11 @@ public:
     {
         return (long)width;
     }
+
+    virtual wchar_t INSTANCE_CALLCONV GetWidthAsWChar()
+    {
+        return (wchar_t)width;
+    }
 };
 
 extern "C" DLL_EXPORT C* STDMETHODCALLTYPE CreateInstanceOfC(float width, float height)
@@ -95,4 +100,9 @@ extern "C" DLL_EXPORT E STDMETHODCALLTYPE GetEFromManaged(C* c)
 extern "C" DLL_EXPORT long STDMETHODCALLTYPE GetWidthAsLongFromManaged(C* c)
 {
     return c->GetWidthAsLong();
+}
+
+extern "C" DLL_EXPORT wchar_t STDMETHODCALLTYPE GetWidthAsWCharFromManaged(C* c)
+{
+    return c->GetWidthAsWChar();
 }

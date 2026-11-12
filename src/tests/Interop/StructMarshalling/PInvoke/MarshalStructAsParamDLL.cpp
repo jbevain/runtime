@@ -1298,6 +1298,11 @@ extern "C" DLL_EXPORT Int32CLongStruct STDMETHODCALLTYPE AddCLongs(Int32CLongStr
     return { lhs.i + rhs.i, lhs.l + rhs.l };
 }
 
+extern "C" DLL_EXPORT WideCharPair STDMETHODCALLTYPE SwapWideChars(WideCharPair pair)
+{
+    return { pair.b, pair.a };
+}
+
 extern "C" DLL_EXPORT SDL_GameControllerBindType STDMETHODCALLTYPE getBindType(SDL_GameControllerButtonBind button)
 {
     return button.bindType;

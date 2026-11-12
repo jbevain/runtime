@@ -33,7 +33,8 @@ public class Managed
         UnicodeCharArrayClassificationId,
         HFAId,
         DoubleHFAId,
-        Int32CLongId
+        Int32CLongId,
+        WideCharPairId
     }
 
     private static void InitialArray(int[] iarr, int[] icarr)
@@ -357,6 +358,9 @@ public class Managed
 
     [DllImport("MarshalStructAsParam")]
     static extern Int32CLongStruct AddCLongs(Int32CLongStruct lhs, Int32CLongStruct rhs);
+
+    [DllImport("MarshalStructAsParam")]
+    static extern WideCharPair SwapWideChars(WideCharPair pair);
 
     [DllImport("MarshalStructAsParam")]
     static extern ManyInts GetMultiplesOf(int i);
@@ -820,6 +824,26 @@ public class Managed
                     if (!expected.Equals(actual))
                     {
                         Console.WriteLine($"\tFAILED! Expected {expected}. Actual {actual}");
+                        failures++;
+                    }
+                    break;
+                }
+                case StructID.WideCharPairId:
+                {
+                    // wchar_t holds UTF-32 code points outside of Windows, so a supplementary
+                    // character only round-trips when the field has the native 4-byte width.
+                    int b = OperatingSystem.IsWindows() ? 0xFFFD : 0x1F600;
+                    WideCharPair pair = new WideCharPair
+                    {
+                        a = new CWChar('\u00E9'),
+                        b = new CWChar(b)
+                    };
+
+                    Console.WriteLine("\tCalling SwapWideChars.");
+                    WideCharPair actual = SwapWideChars(pair);
+                    if (actual.a.Value != b || actual.b.Value != '\u00E9')
+                    {
+                        Console.WriteLine($"\tFAILED! Expected ({b}, {(int)'\u00E9'}). Actual ({actual.a}, {actual.b})");
                         failures++;
                     }
                     break;
@@ -2455,6 +2479,7 @@ public class Managed
         MarshalStructAsParam_AsSeqByVal(StructID.HFAId);
         MarshalStructAsParam_AsSeqByVal(StructID.DoubleHFAId);
         MarshalStructAsParam_AsSeqByVal(StructID.Int32CLongId);
+        MarshalStructAsParam_AsSeqByVal(StructID.WideCharPairId);
     }
 
     [SecuritySafeCritical]

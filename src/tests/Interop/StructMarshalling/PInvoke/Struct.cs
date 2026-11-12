@@ -536,3 +536,9 @@ public struct Int32CLongStruct
     public int i;
     public CLong l;
 }
+
+public struct WideCharPair
+{
+    public CWChar a;
+    public CWChar b;
+}

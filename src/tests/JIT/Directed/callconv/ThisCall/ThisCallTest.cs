@@ -20,6 +20,7 @@ unsafe class ThisCallNative
             public IntPtr getHeightAsInt;
             public IntPtr getE;
             public IntPtr getWidthAsLong;
+            public IntPtr getWidthAsWChar;
         }
 
         public VtableLayout* vtable;
@@ -62,6 +63,9 @@ unsafe class ThisCallNative
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     public delegate CLong GetWidthAsLongFn(C* c);
 
+    [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+    public delegate CWChar GetWidthAsWCharFn(C* c);
+
     [DllImport(nameof(ThisCallNative))]
     public static extern C* CreateInstanceOfC(float width, float height);
 
@@ -75,6 +79,8 @@ unsafe class ThisCallNative
     public static extern E GetEFromManaged(C* c);
     [DllImport(nameof(ThisCallNative))]
     public static extern CLong GetWidthAsLongFromManaged(C* c);
+    [DllImport(nameof(ThisCallNative))]
+    public static extern CWChar GetWidthAsWCharFromManaged(C* c);
 }
 
 public unsafe class ThisCallTest
@@ -95,6 +101,7 @@ public unsafe class ThisCallTest
             Test4ByteNonHFA(instance);
             TestEnum(instance);
             TestCLong(instance);
+            TestCWChar(instance);
             // Marshal.GetFunctionPointerForDelegate needs a stub created at run time, which CoreCLR
             // on wasm cannot allocate.
             if (!PlatformDetection.IsWasm)
@@ -104,12 +111,14 @@ public unsafe class ThisCallTest
                 Test4ByteNonHFAReverse();
                 TestEnumReverse();
                 TestCLongReverse();
+                TestCWCharReverse();
             }
             Test8ByteHFAUnmanagedCallersOnly();
             Test4ByteHFAUnmanagedCallersOnly();
             Test4ByteNonHFAUnmanagedCallersOnly();
             TestEnumUnmanagedCallersOnly();
             TestCLongUnmanagedCallersOnly();
+            TestCWCharUnmanagedCallersOnly();
         }
         catch (System.Exception ex)
         {
@@ -165,6 +174,15 @@ public unsafe class ThisCallTest
         Assert.Equal((nint)instance->width, result.Value);
     }
 
+    private static void TestCWChar(ThisCallNative.C* instance)
+    {
+        ThisCallNative.GetWidthAsWCharFn callback = Marshal.GetDelegateForFunctionPointer<ThisCallNative.GetWidthAsWCharFn>(instance->vtable->getWidthAsWChar);
+
+        CWChar result = callback(instance);
+
+        Assert.Equal((int)instance->width, result.Value);
+    }
+
     private static void Test8ByteHFAReverse()
     {
         ThisCallNative.C c = CreateCWithManagedVTable(2.0f, 3.0f);
@@ -204,6 +222,14 @@ public unsafe class ThisCallTest
         CLong result = ThisCallNative.GetWidthAsLongFromManaged(&c);
 
         Assert.Equal((nint)c.width, result.Value);
+    }
+
+    private static void TestCWCharReverse()
+    {
+        ThisCallNative.C c = CreateCWithManagedVTable(2.0f, 3.0f);
+        CWChar result = ThisCallNative.GetWidthAsWCharFromManaged(&c);
+
+        Assert.Equal((int)c.width, result.Value);
     }
 
     private static void Test8ByteHFAUnmanagedCallersOnly()
@@ -247,6 +273,14 @@ public unsafe class ThisCallTest
         Assert.Equal((nint)c.width, result.Value);
     }
 
+    private static void TestCWCharUnmanagedCallersOnly()
+    {
+        ThisCallNative.C c = CreateCWithUnmanagedCallersOnlyVTable(2.0f, 3.0f);
+        CWChar result = ThisCallNative.GetWidthAsWCharFromManaged(&c);
+
+        Assert.Equal((int)c.width, result.Value);
+    }
+
     private static ThisCallNative.C CreateCWithManagedVTable(float width, float height)
     {
         return new ThisCallNative.C
@@ -288,6 +322,8 @@ public unsafe class ThisCallTest
                     (ThisCallNative.GetEFn)((ThisCallNative.C* c) => c->dummy ));
                 managedVtable->getWidthAsLong = Marshal.GetFunctionPointerForDelegate(
                     (ThisCallNative.GetWidthAsLongFn)((ThisCallNative.C* c) => new CLong((nint)c->width)));
+                managedVtable->getWidthAsWChar = Marshal.GetFunctionPointerForDelegate(
+                    (ThisCallNative.GetWidthAsWCharFn)((ThisCallNative.C* c) => new CWChar((int)c->width)));
             }
             return managedVtable;
         }
@@ -307,6 +343,7 @@ public unsafe class ThisCallTest
                 unmanagedCallersOnlyVtable->getHeightAsInt = (IntPtr)(delegate* unmanaged[Thiscall]<ThisCallNative.C*, ThisCallNative.IntWrapper>)&GetHeightAsInt;
                 unmanagedCallersOnlyVtable->getE = (IntPtr)(delegate* unmanaged[Thiscall]<ThisCallNative.C*, ThisCallNative.E>)&GetE;
                 unmanagedCallersOnlyVtable->getWidthAsLong = (IntPtr)(delegate* unmanaged[Thiscall]<ThisCallNative.C*, CLong>)&GetWidthAsLong;
+                unmanagedCallersOnlyVtable->getWidthAsWChar = (IntPtr)(delegate* unmanaged[Thiscall]<ThisCallNative.C*, CWChar>)&GetWidthAsWChar;
             }
             return unmanagedCallersOnlyVtable;
         }
@@ -350,5 +387,11 @@ public unsafe class ThisCallTest
     private static CLong GetWidthAsLong(ThisCallNative.C* c)
     {
         return new CLong((nint)c->width);
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvThiscall)])]
+    private static CWChar GetWidthAsWChar(ThisCallNative.C* c)
+    {
+        return new CWChar((int)c->width);
     }
 }

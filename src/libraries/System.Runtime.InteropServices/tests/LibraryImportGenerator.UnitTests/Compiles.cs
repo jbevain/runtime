@@ -62,6 +62,7 @@ namespace LibraryImportGenerator.UnitTests
             // Parameter / return types for specially considered "strictly blittable" types.
             yield return new[] { ID(), CodeSnippets.BasicParametersAndModifiers<CLong>() };
             yield return new[] { ID(), CodeSnippets.BasicParametersAndModifiers<CULong>() };
+            yield return new[] { ID(), CodeSnippets.BasicParametersAndModifiers<CWChar>() };
             yield return new[] { ID(), CodeSnippets.BasicParametersAndModifiers<NFloat>() };
             yield return new[] { ID(), CodeSnippets.BasicParametersAndModifiers<Guid>() };
 

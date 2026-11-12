@@ -20,6 +20,7 @@ unsafe class PlatformDefaultMemberFunctionNative
             public delegate* unmanaged[MemberFunction]<C*, IntWrapper> getHeightAsInt;
             public delegate* unmanaged[MemberFunction]<C*, E> getE;
             public delegate* unmanaged[MemberFunction]<C*, CLong> getWidthAsLong;
+            public delegate* unmanaged[MemberFunction]<C*, CWChar> getWidthAsWChar;
         }
 
         public VtableLayout* vtable;
@@ -62,6 +63,8 @@ unsafe class PlatformDefaultMemberFunctionNative
     public static extern E GetEFromManaged(C* c);
     [DllImport(nameof(PlatformDefaultMemberFunctionNative))]
     public static extern CLong GetWidthAsLongFromManaged(C* c);
+    [DllImport(nameof(PlatformDefaultMemberFunctionNative))]
+    public static extern CWChar GetWidthAsWCharFromManaged(C* c);
 }
 
 public unsafe class PlatformDefaultMemberFunctionTest
@@ -80,11 +83,13 @@ public unsafe class PlatformDefaultMemberFunctionTest
             Test4ByteNonHFA(instance);
             TestEnum(instance);
             TestCLong(instance);
+            TestCWChar(instance);
             Test8ByteHFAUnmanagedCallersOnly();
             Test4ByteHFAUnmanagedCallersOnly();
             Test4ByteNonHFAUnmanagedCallersOnly();
             TestEnumUnmanagedCallersOnly();
             TestCLongUnmanagedCallersOnly();
+            TestCWCharUnmanagedCallersOnly();
         }
         catch (System.Exception ex)
         {
@@ -130,6 +135,13 @@ public unsafe class PlatformDefaultMemberFunctionTest
         Assert.Equal((nint)instance->width, result.Value);
     }
 
+    private static void TestCWChar(PlatformDefaultMemberFunctionNative.C* instance)
+    {
+        CWChar result = instance->vtable->getWidthAsWChar(instance);
+
+        Assert.Equal((int)instance->width, result.Value);
+    }
+
     private static void Test8ByteHFAUnmanagedCallersOnly()
     {
         PlatformDefaultMemberFunctionNative.C c = CreateCWithUnmanagedCallersOnlyVTable(2.0f, 3.0f);
@@ -171,6 +183,14 @@ public unsafe class PlatformDefaultMemberFunctionTest
         Assert.Equal((nint)c.width, result.Value);
     }
 
+    private static void TestCWCharUnmanagedCallersOnly()
+    {
+        PlatformDefaultMemberFunctionNative.C c = CreateCWithUnmanagedCallersOnlyVTable(2.0f, 3.0f);
+        CWChar result = PlatformDefaultMemberFunctionNative.GetWidthAsWCharFromManaged(&c);
+
+        Assert.Equal((int)c.width, result.Value);
+    }
+
     private static PlatformDefaultMemberFunctionNative.C CreateCWithUnmanagedCallersOnlyVTable(float width, float height)
     {
         return new PlatformDefaultMemberFunctionNative.C
@@ -196,6 +216,7 @@ public unsafe class PlatformDefaultMemberFunctionTest
                 unmanagedCallersOnlyVtable->getHeightAsInt = &GetHeightAsInt;
                 unmanagedCallersOnlyVtable->getE = &GetE;
                 unmanagedCallersOnlyVtable->getWidthAsLong = &GetWidthAsLong;
+                unmanagedCallersOnlyVtable->getWidthAsWChar = &GetWidthAsWChar;
             }
             return unmanagedCallersOnlyVtable;
         }
@@ -239,5 +260,11 @@ public unsafe class PlatformDefaultMemberFunctionTest
     private static CLong GetWidthAsLong(PlatformDefaultMemberFunctionNative.C* c)
     {
         return new CLong((nint)c->width);
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvMemberFunction)])]
+    private static CWChar GetWidthAsWChar(PlatformDefaultMemberFunctionNative.C* c)
+    {
+        return new CWChar((int)c->width);
     }
 }

@@ -574,7 +574,8 @@ bool Compiler::isNativePrimitiveStructType(CORINFO_CLASS_HANDLE clsHnd)
         return false;
     }
 
-    return strcmp(typeName, "CLong") == 0 || strcmp(typeName, "CULong") == 0 || strcmp(typeName, "NFloat") == 0;
+    return strcmp(typeName, "CLong") == 0 || strcmp(typeName, "CULong") == 0 || strcmp(typeName, "CWChar") == 0 ||
+           strcmp(typeName, "NFloat") == 0;
 }
 
 //-----------------------------------------------------------------------------

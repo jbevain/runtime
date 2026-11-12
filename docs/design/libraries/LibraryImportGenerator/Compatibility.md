@@ -2,6 +2,12 @@
 
 Documentation on compatibility guidance and the current state. The version headings act as a rolling delta between the previous version.
 
+## Version 4 (.NET 12)
+
+### Strict Blittability
+
+`System.Runtime.InteropServices.CWChar` is now considered strictly blittable. Like `CLong`, `CULong`, and `NFloat`, it is an interop intrinsic type designed to be used at the unmanaged API layer, and it represents the C `wchar_t` type.
+
 ## Version 3 (.NET 8)
 
 ### Safe Handles

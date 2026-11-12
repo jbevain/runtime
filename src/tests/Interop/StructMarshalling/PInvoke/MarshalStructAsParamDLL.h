@@ -960,6 +960,12 @@ struct Int32CLongStruct
     long l;
 };
 
+struct WideCharPair
+{
+    wchar_t a;
+    wchar_t b;
+};
+
 typedef enum
 {
     SDL_CONTROLLER_BINDTYPE_NONE = 0,
